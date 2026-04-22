@@ -479,6 +479,16 @@
   }
   .criteria-item strong { color: var(--navy); }
 
+  .row-warning {
+    font-size: 11px;
+    color: #7A3800;
+    background: #FEF3E2;
+    border: 1px solid #F5C67A;
+    border-radius: 3px;
+    padding: 5px 10px;
+    margin: 2px 0 4px;
+  }
+
   /* ---- RESET BUTTON ---- */
   .btn-row {
     display: flex;
@@ -647,7 +657,7 @@
       <h2>Prospecting Activity Plan</h2>
     </div>
     <div class="card-body">
-      <p style="font-size:13px; color:var(--gray-600); margin-bottom:16px;">Toggle on the methods you plan to use. For each method, enter how many <em>qualified prospects you expect that method to produce</em> — then select how often. The tool works backwards to calculate how much raw activity (calls made, events attended, emails sent, etc.) you'll need to generate those prospects. <strong>You are not entering your activity volume — you are entering your expected qualified prospect output.</strong></p>
+      <p style="font-size:13px; color:var(--gray-600); margin-bottom:16px;">Toggle on the methods you plan to use. For each method, enter how many <em>qualified prospects you want to produce</em> per frequency period. The tool works backwards to show you how many raw activities (calls, emails, events, etc.) you would need to do in that period to reach that QP target — based on each method's conversion rate. <strong>Start with a realistic QP goal — the activity number will follow.</strong></p>
 
       <div class="definition-box">
         <div class="def-icon">🎯</div>
@@ -675,10 +685,9 @@
               <th>Active?</th>
               <th>Qualified Prospects per Period</th>
               <th>Frequency</th>
-              <th>Annual Qualified Prospects</th>
               <th>Conversion Rate</th>
-              <th>Annual Raw Activity Needed</th>
               <th>Activity per Period</th>
+              <th>Annual Raw Activity Needed</th>
             </tr>
           </thead>
           <tbody id="tableBody"></tbody>
@@ -720,18 +729,18 @@
 <script>
 // ---- DATA ----
 const METHODS = [
-  { name: "Client Referral",     activity: "Schedule a meeting",  conv: 0.30,  defaultFreq: "Monthly" },
-  { name: "COI Referral",        activity: "Schedule a meeting",  conv: 0.30,  defaultFreq: "Monthly" },
-  { name: "Cold Calling",        activity: "Live conversations",  conv: 0.05,  defaultFreq: "Weekly" },
-  { name: "Networking Events",   activity: "Events attended",     conv: 0.03,  defaultFreq: "Monthly" },
-  { name: "Conferences",         activity: "Events attended",     conv: 0.03,  defaultFreq: "Quarterly" },
-  { name: "Trade Shows",         activity: "Events attended",     conv: 0.05,  defaultFreq: "Quarterly" },
-  { name: "Promotions",          activity: "Promotions run",      conv: 0.01,  defaultFreq: "Monthly" },
-  { name: "Canvassing",          activity: "Door contacts",       conv: 0.05,  defaultFreq: "Monthly" },
-  { name: "Social Media",        activity: "Messages sent",       conv: 0.05,  defaultFreq: "Weekly" },
-  { name: "Email / Drip",        activity: "Emails sent",         conv: 0.01,  defaultFreq: "Weekly" },
-  { name: "Direct Mail",         activity: "Letters mailed",      conv: 0.005, defaultFreq: "Monthly" },
-  { name: "Advertising",         activity: "Campaigns run",       conv: 0.01,  defaultFreq: "Quarterly" },
+  { name: "Client Referral",   activity: "Schedule a meeting",  conv: 0.30,  defaultFreq: "Monthly",    qpExample: "e.g. 1" },
+  { name: "COI Referral",      activity: "Schedule a meeting",  conv: 0.30,  defaultFreq: "Monthly",    qpExample: "e.g. 1" },
+  { name: "Cold Calling",      activity: "Live conversations",  conv: 0.05,  defaultFreq: "Weekly",     qpExample: "e.g. 1" },
+  { name: "Networking Events", activity: "Events attended",     conv: 0.03,  defaultFreq: "Monthly",    qpExample: "e.g. 1" },
+  { name: "Conferences",       activity: "Events attended",     conv: 0.03,  defaultFreq: "Quarterly",  qpExample: "e.g. 1" },
+  { name: "Trade Shows",       activity: "Events attended",     conv: 0.05,  defaultFreq: "Quarterly",  qpExample: "e.g. 1" },
+  { name: "Promotions",        activity: "Promotions run",      conv: 0.01,  defaultFreq: "Monthly",    qpExample: "e.g. 1" },
+  { name: "Canvassing",        activity: "Door contacts",       conv: 0.05,  defaultFreq: "Monthly",    qpExample: "e.g. 1" },
+  { name: "Social Media",      activity: "Messages sent",       conv: 0.05,  defaultFreq: "Weekly",     qpExample: "e.g. 1" },
+  { name: "Email / Drip",      activity: "Emails sent",         conv: 0.01,  defaultFreq: "Weekly",     qpExample: "e.g. 1" },
+  { name: "Direct Mail",       activity: "Letters mailed",      conv: 0.005, defaultFreq: "Monthly",    qpExample: "e.g. 1" },
+  { name: "Advertising",       activity: "Campaigns run",       conv: 0.01,  defaultFreq: "Quarterly",  qpExample: "e.g. 1" },
 ];
 
 const FREQS = ["Daily","Weekly","Bi-Weekly","Monthly","Quarterly","Bi-Annually","Annually"];
@@ -761,21 +770,25 @@ function buildTable() {
       </td>
       <td>
         <input type="number" class="td-num" id="qp-${i}" value="0" min="0" oninput="recalcRow(${i})"
-          title="Enter how many qualified prospects you expect this method to produce per frequency period — not how many activities you'll do. Example: if you cold call 50 people a week and 3 become qualified prospects, enter 3.">
+          placeholder="${m.qpExample}"
+          title="Enter how many qualified prospects you want from this method per frequency period. The tool works backwards to show you how many raw activities you need to do to get there.">
       </td>
       <td>
         <select id="freq-${i}" onchange="recalcRow(${i})">
           ${freqOpts}
         </select>
       </td>
-      <td class="calc-cell zero" id="annualQP-${i}">0</td>
       <td>
         <span class="conversion-pill">${(m.conv*100).toFixed(m.conv < 0.01 ? 1 : 0)}%</span>
       </td>
-      <td class="calc-cell zero" id="annualRaw-${i}">0</td>
       <td class="calc-cell zero" id="perPeriod-${i}">0</td>
+      <td class="calc-cell zero" id="annualRaw-${i}">0</td>
     `;
+    // Add warning row
+    const warnRow = document.createElement("tr");
+    warnRow.innerHTML = `<td colspan="7"><div class="row-warning" id="warn-${i}" style="display:none;"></div></td>`;
     tbody.appendChild(tr);
+    tbody.appendChild(warnRow);
   });
 }
 
@@ -795,7 +808,7 @@ function recalcRow(i) {
   const freqNum = FREQ_NUMS[freq];
   const conv = METHODS[i].conv;
 
-  const annualQP = chk ? qp * freqNum : 0;
+  const annualQP  = chk ? qp * freqNum : 0;
   const annualRaw = chk && conv > 0 ? Math.ceil(annualQP / conv) : 0;
   const perPeriod = chk && conv > 0 ? Math.ceil(annualRaw / freqNum) : 0;
 
@@ -804,9 +817,21 @@ function recalcRow(i) {
     el.textContent = val > 0 ? fmt(val) : "0";
     el.classList.toggle("zero", val === 0);
   };
-  setCell(`annualQP-${i}`, annualQP);
-  setCell(`annualRaw-${i}`, annualRaw);
   setCell(`perPeriod-${i}`, perPeriod);
+  setCell(`annualRaw-${i}`, annualRaw);
+
+  // Reality-check warning
+  const warningThresholds = [500, 500, 2000, 200, 50, 100, 500, 500, 2000, 5000, 2000, 50];
+  const warnEl = document.getElementById(`warn-${i}`);
+  if (warnEl) {
+    const threshold = warningThresholds[i] || 1000;
+    if (chk && annualRaw > threshold) {
+      warnEl.textContent = `⚠ ${fmt(annualRaw)} activities/year may be unrealistic — try a lower QP target or less frequent cadence.`;
+      warnEl.style.display = "block";
+    } else {
+      warnEl.style.display = "none";
+    }
+  }
 
   updateTotals();
 }
