@@ -769,8 +769,8 @@ function buildTable() {
         </label>
       </td>
       <td>
-        <input type="number" class="td-num" id="qp-${i}" value="0" min="0" oninput="recalcRow(${i})"
-          placeholder="${m.qpExample}"
+        <input type="number" class="td-num" id="qp-${i}" value="" min="0" oninput="recalcRow(${i})"
+          placeholder="e.g. 1"
           title="Enter how many qualified prospects you want from this method per frequency period. The tool works backwards to show you how many raw activities you need to do to get there.">
       </td>
       <td>
@@ -779,7 +779,7 @@ function buildTable() {
         </select>
       </td>
       <td>
-        <span class="conversion-pill" title="Based on industry averages — your actual conversion rate may vary based on your experience, market, and approach.">
+        <span class="conversion-pill" title="Based on industry averages. Your actual conversion rate may vary based on your experience, market, and approach.">
           ${(m.conv*100).toFixed(m.conv < 0.01 ? 1 : 0)}%
         </span>
       </td>
