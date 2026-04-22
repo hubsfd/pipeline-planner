@@ -779,7 +779,9 @@ function buildTable() {
         </select>
       </td>
       <td>
-        <span class="conversion-pill">${(m.conv*100).toFixed(m.conv < 0.01 ? 1 : 0)}%</span>
+        <span class="conversion-pill" title="Based on industry averages — your actual conversion rate may vary based on your experience, market, and approach.">
+          ${(m.conv*100).toFixed(m.conv < 0.01 ? 1 : 0)}%
+        </span>
       </td>
       <td class="calc-cell zero" id="perPeriod-${i}">0</td>
       <td class="calc-cell zero" id="annualRaw-${i}">0</td>
@@ -1026,13 +1028,15 @@ function resetAll() {
   METHODS.forEach((m, i) => {
     document.getElementById("chk-" + i).checked = true;
     document.getElementById("freq-" + i).value = m.defaultFreq;
-    document.getElementById("qp-" + i).value = 0;
+    document.getElementById("qp-" + i).value = "";
     document.getElementById(`row-${i}`).classList.remove("row-off");
     document.getElementById(`lbl-${i}`).textContent = "On";
-    ["annualQP","annualRaw","perPeriod"].forEach(pre => {
+    ["annualRaw","perPeriod"].forEach(pre => {
       const el = document.getElementById(`${pre}-${i}`);
-      el.textContent = "0"; el.classList.add("zero");
+      if (el) { el.textContent = "0"; el.classList.add("zero"); }
     });
+    const warnEl = document.getElementById(`warn-${i}`);
+    if (warnEl) warnEl.style.display = "none";
   });
   document.getElementById("resultsGrid").style.display = "none";
   document.getElementById("quotaInsight").classList.remove("show");
@@ -1065,12 +1069,12 @@ function exportPDF() {
   METHODS.forEach((m, i) => {
     const chk = document.getElementById(`chk-${i}`).checked;
     if (!chk) return;
-    const qp      = parseFloat(document.getElementById(`qp-${i}`).value) || 0;
+    const qp = parseFloat(document.getElementById(`qp-${i}`).value) || 0;
     if (qp === 0) return;
-    const freq    = document.getElementById(`freq-${i}`).value;
-    const annQP   = document.getElementById(`annualQP-${i}`).textContent;
-    const annRaw  = document.getElementById(`annualRaw-${i}`).textContent;
-    const perPd   = document.getElementById(`perPeriod-${i}`).textContent;
+    const freq   = document.getElementById(`freq-${i}`).value;
+    const annRaw = document.getElementById(`annualRaw-${i}`).textContent;
+    const perPd  = document.getElementById(`perPeriod-${i}`).textContent;
+    const annQP  = fmt(qp * FREQ_NUMS[freq]);
     methodRows += `
       <tr>
         <td>${m.name}</td>
@@ -1078,9 +1082,10 @@ function exportPDF() {
         <td style="text-align:center">${qp}</td>
         <td style="text-align:center">${annQP}</td>
         <td style="text-align:center">${(m.conv*100).toFixed(m.conv<0.01?1:0)}%</td>
-        <td style="text-align:center">${annRaw}</td>
         <td style="text-align:center">${perPd}</td>
+        <td style="text-align:center">${annRaw}</td>
       </tr>`;
+  });
   });
 
   // Build coaching tips text
@@ -1157,11 +1162,13 @@ function exportPDF() {
   <div class="footer">HUB International — Sales Force Development | Pipeline &amp; Activity Planner</div>
   </body></html>`;
 
-  const win = window.open("", "_blank");
-  win.document.write(html);
-  win.document.close();
-  win.focus();
-  setTimeout(() => { win.print(); }, 600);
+  const blob = new Blob([html], { type: "text/html" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.target = "_blank";
+  a.click();
+  setTimeout(() => URL.revokeObjectURL(url), 5000);
 }
 
 buildTable();
