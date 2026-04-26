@@ -600,7 +600,7 @@
         <div class="field">
           <label>Average Deal Size ($)</label>
           <input type="number" id="avgDeal" placeholder="e.g. 15000" min="0" oninput="recalc()">
-          <span class="hint">Average annual premium or revenue per new account</span>
+          <span class="hint">Average revenue per new account closed</span>
         </div>
         <div class="field">
           <label>Win Rate (%)</label>
@@ -639,6 +639,11 @@
           <div class="tile-label">Monthly Opps w/ 25% Padding</div>
           <div class="tile-value" id="monthlyOppsPad">--</div>
           <div class="tile-sub">recommended pipeline target</div>
+        </div>
+        <div class="result-tile" style="border:2px solid var(--amber);">
+          <div class="tile-label">Opportunity Revenue Required</div>
+          <div class="tile-value" id="oppRevReq" style="font-size:22px;">--</div>
+          <div class="tile-sub">monthly pipeline value needed</div>
         </div>
       </div>
 
@@ -891,13 +896,14 @@ function recalc() {
     grid.style.display = "none";
     insight.classList.remove("show");
     document.getElementById("annualOppsPad").dataset.raw = 0;
+    document.getElementById("oppRevReq").textContent = "--";
     updateTotals();
     return;
   }
 
   const annualWins = goal / deal;
   const monthlyWins = annualWins / 12;
-  const annualOpps = (100 / (wr / 100 * 100)) * annualWins; // = annualWins / (wr/100)
+  const annualOpps = (100 / (wr / 100 * 100)) * annualWins;
   const monthlyOpps = annualOpps / 12;
   const annualOppsPad = annualOpps * 1.25;
   const monthlyOppsPad = annualOppsPad / 12;
@@ -910,6 +916,7 @@ function recalc() {
   document.getElementById("annualOppsPad").textContent = fmt(annualOppsPad, 1);
   document.getElementById("annualOppsPad").dataset.raw = annualOppsPad;
   document.getElementById("monthlyOppsPad").textContent = fmt(monthlyOppsPad, 1);
+  document.getElementById("oppRevReq").textContent = "$" + fmtDollar(oppRevReq);
 
   grid.style.display = "grid";
   document.getElementById("exportBtn").disabled = false;
@@ -1009,6 +1016,10 @@ function renderSuggestions(totalEstOpps, annualOppsPad, surplus) {
     tips.push({ type: "tip", text: `<strong>Average deal size of $${fmtDollar(deal)} is relatively small.</strong> Higher deal sizes compress the number of wins you need. If possible, focus your prospecting effort on larger accounts — even moving your average to $${fmtDollar(deal * 1.5)} would reduce your required wins by 33%.` });
   }
 
+  // Opportunity revenue required tip
+  const oppRevReqVal = (annualOppsPad / 12) * deal;
+  tips.push({ type: "info", text: `<strong>Your monthly opportunity revenue required is $${fmtDollar(oppRevReqVal)}.</strong> Compare this to the total value of your current active pipeline. If you're short, that's your signal to increase prospecting activity this month — not next month.` });
+
   panel.classList.add("show");
   list.innerHTML = tips.map(t => `<div class="suggest-item ${t.type}">${t.text}</div>`).join("");
 }
@@ -1041,6 +1052,7 @@ function resetAll() {
   document.getElementById("resultsGrid").style.display = "none";
   document.getElementById("quotaInsight").classList.remove("show");
   document.getElementById("annualOppsPad").dataset.raw = 0;
+  document.getElementById("oppRevReq").textContent = "--";
   document.getElementById("totalEstOpps").textContent = "0";
   document.getElementById("totalReqOpps").textContent = "--";
   document.getElementById("surplusValue").textContent = "--";
@@ -1139,6 +1151,7 @@ function exportPDF() {
     <div class="kpi"><div class="label">Annual Wins Req'd</div><div class="value">${fmt(annualWins,1)}</div><div class="sub">new accounts / year</div></div>
     <div class="kpi"><div class="label">Annual Opps Req'd</div><div class="value">${fmt(annualOpps,1)}</div><div class="sub">before padding</div></div>
     <div class="kpi" style="border:2px solid #003057;"><div class="label" style="color:#003057;">Annual Opps w/ Padding</div><div class="value" style="color:#003057;">${fmt(annualOppsPad,1)}</div><div class="sub" style="color:#4A6580;">pipeline target (25% buffer)</div></div>
+    <div class="kpi" style="border:2px solid #F5A800;"><div class="label" style="color:#003057;">Opp. Revenue Req'd / Month</div><div class="value" style="color:#003057;">$${fmtDollar((annualOppsPad/12)*deal)}</div><div class="sub" style="color:#4A6580;">compare to your current pipeline value</div></div>
   </div>
 
   <div class="section-title">Step 2 — Prospecting Activity Plan</div>
