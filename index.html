@@ -1100,7 +1100,7 @@ function exportPDF() {
   <title>Pipeline Plan</title>
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@700;800&family=Barlow:wght@400;500;600&display=swap');
-    * { box-sizing: border-box; margin: 0; padding: 0; }
+    * { box-sizing: border-box; margin: 0; padding: 0; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
     body { font-family: 'Barlow', sans-serif; color: #1E3048; background: white; padding: 36px 40px; font-size: 13px; }
     .print-header { display: flex; justify-content: space-between; align-items: flex-end; border-bottom: 3px solid #003057; padding-bottom: 10px; margin-bottom: 22px; }
     .print-header h1 { font-family: 'Barlow Condensed', sans-serif; font-size: 24px; font-weight: 800; color: #003057; text-transform: uppercase; letter-spacing: 0.04em; }
@@ -1113,7 +1113,7 @@ function exportPDF() {
     .kpi .value { font-family: 'Barlow Condensed', sans-serif; font-size: 26px; font-weight: 800; color: #003057; }
     .kpi .sub { font-size: 10px; color: #8FA3BB; margin-top: 2px; }
     table { width: 100%; border-collapse: collapse; font-size: 12px; margin-top: 4px; }
-    thead th { background: #003057; color: white; font-family: 'Barlow Condensed', sans-serif; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; padding: 7px 10px; text-align: left; }
+    thead th { background: white; color: #003057; font-family: 'Barlow Condensed', sans-serif; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; padding: 7px 10px; text-align: left; border-bottom: 2px solid #003057; }
     tbody tr:nth-child(even) { background: #F7F9FC; }
     td { padding: 7px 10px; border-bottom: 1px solid #EEF2F7; }
     .totals-row { display: flex; gap: 0; border: 1.5px solid #D8E2EE; border-radius: 4px; overflow: hidden; margin: 14px 0 0; }
@@ -1138,14 +1138,14 @@ function exportPDF() {
     <div class="kpi"><div class="label">Win Rate</div><div class="value">${wr}%</div></div>
     <div class="kpi"><div class="label">Annual Wins Req'd</div><div class="value">${fmt(annualWins,1)}</div><div class="sub">new accounts / year</div></div>
     <div class="kpi"><div class="label">Annual Opps Req'd</div><div class="value">${fmt(annualOpps,1)}</div><div class="sub">before padding</div></div>
-    <div class="kpi" style="background:#003057;border-color:#003057;"><div class="label" style="color:rgba(255,255,255,0.6)">Annual Opps w/ Padding</div><div class="value" style="color:white">${fmt(annualOppsPad,1)}</div><div class="sub" style="color:rgba(255,255,255,0.5)">pipeline target (25% buffer)</div></div>
+    <div class="kpi" style="border:2px solid #003057;"><div class="label" style="color:#003057;">Annual Opps w/ Padding</div><div class="value" style="color:#003057;">${fmt(annualOppsPad,1)}</div><div class="sub" style="color:#4A6580;">pipeline target (25% buffer)</div></div>
   </div>
 
   <div class="section-title">Step 2 — Prospecting Activity Plan</div>
   ${methodRows ? `
   <table>
     <thead><tr>
-      <th>Method</th><th>Frequency</th><th>QPs / Period</th><th>Annual QPs</th><th>Conv. Rate</th><th>Annual Activity</th><th>Activity / Period</th>
+      <th>Method</th><th>Frequency</th><th>QPs / Period</th><th>Annual QPs</th><th>Conv. Rate</th><th>Activity / Period</th><th>Annual Activity</th>
     </tr></thead>
     <tbody>${methodRows}</tbody>
   </table>` : `<p style="color:#8FA3BB; font-style:italic; font-size:12px;">No prospecting methods with targets entered.</p>`}
